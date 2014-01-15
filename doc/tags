@@ -4540,6 +4540,7 @@ UserGettingBored	autocmd.txt	/*UserGettingBored*
 V	visual.txt	/*V*
 VIMINIT	starting.txt	/*VIMINIT*
 VMS	os_vms.txt	/*VMS*
+V_ct	vi_help.txt	/*V_ct*
 Vi	intro.txt	/*Vi*
 View	starting.txt	/*View*
 VimEnter	autocmd.txt	/*VimEnter*
@@ -6264,7 +6265,6 @@ hebrew.txt	hebrew.txt	/*hebrew.txt*
 help	helphelp.txt	/*help*
 help-context	help.txt	/*help-context*
 help-summary	usr_02.txt	/*help-summary*
-help-tags	tags	1
 help-translated	helphelp.txt	/*help-translated*
 help-writing	helphelp.txt	/*help-writing*
 help-xterm-window	helphelp.txt	/*help-xterm-window*
@@ -8547,9 +8547,16 @@ version7.3	version7.txt	/*version7.3*
 version7.4	version7.txt	/*version7.4*
 version7.txt	version7.txt	/*version7.txt*
 vi	intro.txt	/*vi*
+vi-Bram	vi_help.txt	/*vi-Bram*
+vi-Moolenaar	vi_help.txt	/*vi-Moolenaar*
+vi-author	vi_help.txt	/*vi-author*
+vi-credits	vi_help.txt	/*vi-credits*
 vi-differences	vi_diff.txt	/*vi-differences*
+vi-doc-file-list	vi_help.txt	/*vi-doc-file-list*
+vi-help-context	vi_help.txt	/*vi-help-context*
 vi:	options.txt	/*vi:*
 vi_diff.txt	vi_diff.txt	/*vi_diff.txt*
+vi_help.txt	vi_help.txt	/*vi_help.txt*
 view	starting.txt	/*view*
 view-diffs	diff.txt	/*view-diffs*
 view-file	starting.txt	/*view-file*
