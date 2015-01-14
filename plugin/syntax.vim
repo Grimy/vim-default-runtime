@@ -13,11 +13,10 @@ augroup UpdateFileType
 	autocmd FileType * syntax clear
 	autocmd FileType * augroup FileTypePlugin
 	autocmd FileType *     for name in split(expand('<amatch>'), '\.')
-	autocmd FileType *         execute 'runtime! syntax/'   . name . '.vim'
-	autocmd FileType *         execute 'runtime! indent/'   . name . '.vim'
-	autocmd FileType *         execute 'runtime! ftplugin/' . name . '.vim'
-	autocmd FileType *         execute 'runtime! ftplugin/' . name . '/*.vim'
+	autocmd FileType *         execute 'runtime syntax/'   . name . '.vim'
+	autocmd FileType *         execute 'runtime indent/'   . name . '.vim'
+	autocmd FileType *         execute 'runtime ftplugin/' . name . '.vim'
 	autocmd FileType *     endfor
-	autocmd FileType *     execute 'runtime! ftplugin/after.vim'
+	autocmd FileType *     execute 'runtime ftplugin/after.vim'
 	autocmd FileType * augroup END
 augroup END
