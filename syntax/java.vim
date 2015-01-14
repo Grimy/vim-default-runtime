@@ -30,7 +30,7 @@ endif
 
 " some characters that cannot be in a java program (outside a string)
 syn match javaError "[\\@`]"
-syn match javaError "<<<\|=>\|||=\|&&=\|\*\/"
+syn match javaError "<<<\|\.\.\|=>\|||=\|&&=\|[^-]->\|\*\/"
 
 syn match javaOK "\.\.\."
 
@@ -38,19 +38,42 @@ syn match javaOK "\.\.\."
 syn match   javaError2 "#\|=<"
 JavaHiLink javaError2 javaError
 
+
+
 " keyword definitions
-syn keyword javaError   goto const
-syn keyword javaKeyword native package if else switch while for do true false null this super
-syn keyword javaKeyword new instanceof boolean char byte short int long float double void
-syn keyword javaKeyword return static synchronized transient volatile final strictfp serializable
-syn keyword javaKeyword throw try catch finally assert synchronized throws extends implements interface
-syn keyword javaKeyword class public protected private abstract enum break continue default case
+syn keyword javaExternal	native package
+syn match javaExternal		"\<import\>\(\s\+static\>\)\?"
+syn keyword javaError		goto const
+syn keyword javaConditional	if else switch
+syn keyword javaRepeat		while for do
+syn keyword javaBoolean		true false
+syn keyword javaConstant	null
+syn keyword javaTypedef		this super
+syn keyword javaOperator	new instanceof
+syn keyword javaType		boolean char byte short int long float double
+syn keyword javaType		void
+syn keyword javaStatement	return
+syn keyword javaStorageClass	static synchronized transient volatile final strictfp serializable
+syn keyword javaExceptions	throw try catch finally
+syn keyword javaAssert		assert
+syn keyword javaMethodDecl	synchronized throws
+syn keyword javaClassDecl	extends implements interface
+" to differentiate the keyword class from MyClass.class we use a match here
+syn match   javaTypedef		"\.\s*\<class\>"ms=s+1
+syn keyword javaClassDecl	enum
+syn match   javaClassDecl	"^class\>"
+syn match   javaClassDecl	"[^.]\s*\<class\>"ms=s+1
 syn match   javaAnnotation	"@\([_$a-zA-Z][_$a-zA-Z0-9]*\.\)*[_$a-zA-Z][_$a-zA-Z0-9]*\>"
+syn match   javaClassDecl	"@interface\>"
+syn keyword javaBranch		break continue nextgroup=javaUserLabelRef skipwhite
+syn match   javaUserLabelRef	"\k\+" contained
+syn match   javaVarArg		"\.\.\."
+syn keyword javaScopeDecl	public protected private abstract
 
 if exists("java_highlight_java_lang_ids")
   let java_highlight_all=1
 endif
-if exists("java_highlight_all") || exists("java_highlight_java") || exists("java_highlight_java_lang")
+if exists("java_highlight_all")  || exists("java_highlight_java")  || exists("java_highlight_java_lang") 
   " java.lang.*
   syn match javaLangClass "\<System\>"
   syn keyword javaR_JavaLang NegativeArraySizeException ArrayStoreException IllegalStateException RuntimeException IndexOutOfBoundsException UnsupportedOperationException ArrayIndexOutOfBoundsException ArithmeticException ClassCastException EnumConstantNotPresentException StringIndexOutOfBoundsException IllegalArgumentException IllegalMonitorStateException IllegalThreadStateException NumberFormatException NullPointerException TypeNotPresentException SecurityException
@@ -98,11 +121,15 @@ if exists("java_space_errors")
   endif
 endif
 
+syn region  javaLabelRegion	transparent matchgroup=javaLabel start="\<case\>" matchgroup=NONE end=":" contains=javaNumber,javaCharacter
+syn match   javaUserLabel	"^\s*[_$a-zA-Z][_$a-zA-Z0-9_]*\s*:"he=e-1 contains=javaLabel
+syn keyword javaLabel		default
+
 " highlighting C++ keywords as errors removed, too many people find it
 " annoying.  Was: if !exists("java_allow_cpp_keywords")
 
 " The following cluster contains all java groups except the contained ones
-syn cluster javaTop add=javaExternal,javaError,javaError,javaBranch,javaConditional,javaRepeat,javaBoolean,javaConstant,javaTypedef,javaOperator,javaType,javaType,javaStatement,javaStorageClass,javaAssert,javaExceptions,javaMethodDecl,javaClassDecl,javaClassDecl,javaClassDecl,javaScopeDecl,javaError,javaError2,javaUserLabel,javaLangObject,javaAnnotation,javaVarArg
+syn cluster javaTop add=javaExternal,javaError,javaError,javaBranch,javaLabelRegion,javaLabel,javaConditional,javaRepeat,javaBoolean,javaConstant,javaTypedef,javaOperator,javaType,javaType,javaStatement,javaStorageClass,javaAssert,javaExceptions,javaMethodDecl,javaClassDecl,javaClassDecl,javaClassDecl,javaScopeDecl,javaError,javaError2,javaUserLabel,javaLangObject,javaAnnotation,javaVarArg
 
 
 " Comments
@@ -261,12 +288,13 @@ if version >= 508 || !exists("did_java_syn_inits")
   if version < 508
     let did_java_syn_inits = 1
   endif
-  JavaHiLink javaKeyword                Type
   JavaHiLink javaFuncDef		Function
   JavaHiLink javaVarArg			Function
   JavaHiLink javaBraces			Function
   JavaHiLink javaBranch			Conditional
   JavaHiLink javaUserLabelRef		javaUserLabel
+  JavaHiLink javaLabel			Label
+  JavaHiLink javaUserLabel		Label
   JavaHiLink javaConditional		Conditional
   JavaHiLink javaRepeat			Repeat
   JavaHiLink javaExceptions		Exception
