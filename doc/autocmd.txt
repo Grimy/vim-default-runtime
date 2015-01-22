@@ -1,4 +1,4 @@
-*autocmd.txt*   For Vim version 7.4.  Last change: 2014 Sep 23
+*autocmd.txt*   For Vim version 7.4.  Last change: 2014 Aug 22
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -304,6 +304,7 @@ Name			triggered by ~
 |InsertLeave|		when leaving Insert mode
 |InsertCharPre|		when a character was typed in Insert mode, before
 			inserting it
+|JobActivity|		when something interesting happens with a job
 
 |TextChanged|		after a change was made to the text in Normal mode
 |TextChangedI|		after a change was made to the text in Insert mode
@@ -519,11 +520,6 @@ CursorHold			When the user doesn't press a key for the time
 				operator.
 				While recording the CursorHold event is not
 				triggered. |q|
-							*<CursorHold>*
-				Internally the autocommand is triggered by the
-				<CursorHold> key. In an expression mapping
-				|getchar()| may see this character.
-
 				Note: Interactive commands cannot be used for
 				this event.  There is no hit-enter prompt,
 				the screen is updated directly (when needed).
@@ -532,8 +528,7 @@ CursorHold			When the user doesn't press a key for the time
 				Hint: to force an update of the status lines
 				use: >
 					:let &ro = &ro
-<				{only on Amiga, Unix, Win32, MSDOS and all GUI
-				versions}
+
 							*CursorHoldI*
 CursorHoldI			Just like CursorHold, but in Insert mode.
 
@@ -730,6 +725,10 @@ InsertEnter			Just before starting Insert mode.  Also for
 							*InsertLeave*
 InsertLeave			When leaving Insert mode.  Also when using
 				CTRL-O |i_CTRL-O|.  But not for |i_CTRL-C|.
+						{Nvim}  *JobActivity*
+JobActivity			When something interesting happens with a job
+				spawned by |jobstart()|. See |job-control| for
+				details. 
 							*MenuPopup*
 MenuPopup			Just before showing the popup menu (under the
 				right mouse button).  Useful for adjusting the
@@ -785,8 +784,10 @@ SessionLoadPost			After loading the session file created using
 				the |:mksession| command.
 							*ShellCmdPost*
 ShellCmdPost			After executing a shell command with |:!cmd|,
-				|:shell|, |:make| and |:grep|.  Can be used to
-				check for any changed files.
+				|:make| and |:grep|.  Can be used to check for
+				any changed files.
+				For non-blocking shell commands, see
+				|JobActivity|.
 							*ShellFilterPost*
 ShellFilterPost			After executing a shell command with
 				":{range}!cmd", ":w !cmd" or ":r !cmd".
@@ -1001,8 +1002,8 @@ The pattern is interpreted like mostly used in file names:
 	[^ch]   match any character but 'c' and 'h'
 
 Note that for all systems the '/' character is used for path separator (even
-MS-DOS and OS/2).  This was done because the backslash is difficult to use
-in a pattern and to make the autocommands portable across different systems.
+MS-DOS). This was done because the backslash is difficult to use in a pattern
+and to make the autocommands portable across different systems.
 
 							*autocmd-changes*
 Matching with the pattern is done when an event is triggered.  Changing the
@@ -1401,4 +1402,4 @@ This will write the file without triggering the autocommands defined by the
 gzip plugin.
 
 
- vim:tw=78:ts=8:ft=help:norl:
+ vim:tw=78:ts=8:noet:ft=help:norl:

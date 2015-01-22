@@ -506,9 +506,9 @@ some text through a filter, so that it is replaced by the filter output.
 Examples of filters are "sort", which sorts lines alphabetically, and
 "indent", which formats C program files (you need a version of indent that
 works like a filter; not all versions do).  The 'shell' option specifies the
-shell Vim uses to execute the filter command (See also the 'shelltype'
-option).  You can repeat filter commands with ".".  Vim does not recognize a
-comment (starting with '"') after the `:!` command.
+shell Vim uses to execute the filter command.  You can repeat filter commands
+with ".".  Vim does not recognize a comment (starting with '"') after the
+`:!` command.
 
 							*!*
 !{motion}{filter}	Filter {motion} text lines through the external
@@ -566,11 +566,9 @@ attack or other people reading your file).  When Vim exits the directory and
 all files in it are deleted.  When Vim has the setuid bit set this may cause
 problems, the temp file is owned by the setuid user but the filter command
 probably runs as the original user.
-On MS-DOS and OS/2 the first of these directories that works is used: $TMP,
-$TEMP, c:\TMP, c:\TEMP.
-For Unix the list of directories is: $TMPDIR, /tmp, current-dir, $HOME.
-For MS-Windows the GetTempFileName() system function is used.
-For other systems the tmpnam() library function is used.
+Directory for temporary files is created in the first suitable directory of:
+For Unix: $TMPDIR, /tmp, current-dir, $HOME.
+For MS-Windows: $TMP, $TEMP, $USERPROFILE, current-dir.
 
 
 

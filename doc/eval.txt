@@ -1,4 +1,4 @@
-*eval.txt*	For Vim version 7.4.  Last change: 2014 Dec 07
+*eval.txt*	For Vim version 7.4.  Last change: 2014 Sep 09
 
 
 		  VIM REFERENCE MANUAL	  by Bram Moolenaar
@@ -1457,10 +1457,10 @@ v:foldstart	Used for 'foldtext': first line of closed fold.
 		Read-only in the |sandbox|. |fold-foldtext|
 
 					*v:hlsearch* *hlsearch-variable*
-v:hlsearch	Variable that indicates whether search highlighting is on. 
-		Setting it makes sense only if 'hlsearch' is enabled which
-		requires |+extra_search|. Setting this variable to zero acts
-		the like |:nohlsearch| command, setting it to one acts like >
+v:hlsearch	Variable that determines whether search highlighting is on. 
+		Makes sense only if 'hlsearch' is enabled which requires 
+		|+extra_search|. Setting this variable to zero acts the like 
+		|:nohlsearch| command, setting it to one acts like >
 			let &hlsearch = &hlsearch
 <
 					*v:insertmode* *insertmode-variable*
@@ -1751,12 +1751,12 @@ confirm( {msg} [, {choices} [, {default} [, {type}]]])
 copy( {expr})			any	make a shallow copy of {expr}
 cos( {expr})			Float	cosine of {expr}
 cosh( {expr})			Float	hyperbolic cosine of {expr}
-count( {list}, {expr} [, {ic} [, {start}]])
+count( {list}, {expr} [, {start} [, {ic}]])
 				Number	 count how many {expr} are in {list}
 cscope_connection( [{num} , {dbpath} [, {prepend}]])
 				Number	checks existence of cscope connection
-cursor( {lnum}, {col} [, {off}])
-				Number	move cursor to {lnum}, {col}, {off}
+cursor( {lnum}, {col} [, {coladd}])
+				Number	move cursor to {lnum}, {col}, {coladd}
 cursor( {list})			Number	move cursor to position in {list}
 deepcopy( {expr} [, {noref}])	any	make a full copy of {expr}
 delete( {fname})		Number	delete file {fname}
@@ -1866,6 +1866,10 @@ invert( {expr})			Number  bitwise invert
 isdirectory( {directory})	Number	TRUE if {directory} is a directory
 islocked( {expr})		Number	TRUE if {expr} is locked
 items( {dict})			List	key-value pairs in {dict}
+job_close({job})		Closes a job with id {job}
+job_send({job}, {data})		Writes {data} to {job}'s stdin
+job_spawn({name}, {prog}[, {argv}])
+				Spawns {prog} as a job associated with {name}
 join( {list} [, {sep}])		String	join {list} items into one String
 keys( {dict})			List	keys in {dict}
 len( {expr})			Number	the length of {expr}
@@ -1935,6 +1939,12 @@ repeat( {expr}, {count})	String	repeat {expr} {count} times
 resolve( {filename})		String	get filename a shortcut points to
 reverse( {list})		List	reverse {list} in-place
 round( {expr})			Float	round off {expr}
+rpcnotify({channel}, {event}[, {args}...])
+				Sends a |msgpack-rpc| notification to {channel}
+rpcrequest({channel}, {method}[, {args}...])
+				Sends a |msgpack-rpc| request to {channel}
+rpcstart({prog}[, {argv}])	Spawns {prog} and opens a |msgpack-rpc| channel
+rpcstop({channel})		Closes a |msgpack-rpc| {channel}
 screenattr( {row}, {col})	Number	attribute at screen position
 screenchar( {row}, {col})	Number	character at screen position
 screencol()			Number	current cursor column
@@ -2041,7 +2051,7 @@ winrestcmd()			String	returns command to restore window sizes
 winrestview( {dict})		none	restore view of current window
 winsaveview()			Dict	save view of current window
 winwidth( {nr})			Number	width of window {nr}
-writefile( {list}, {fname} [, {flags}])
+writefile( {list}, {fname} [, {binary}])
 				Number	write list of lines to file {fname}
 xor( {expr}, {expr})		Number  bitwise XOR
 
@@ -2395,10 +2405,6 @@ col({expr})	The result is a Number, which is the byte index of the column
 			    number of bytes in the cursor line plus one)
 		    'x	    position of mark x (if the mark is not set, 0 is
 			    returned)
-		    v       In Visual mode: the start of the Visual area (the
-			    cursor is the end).  When not in Visual mode
-			    returns the cursor position.  Differs from |'<| in
-			    that it's updated right away.
 		Additionally {expr} can be [lnum, col]: a |List| with the line
 		and column number. Most useful when the column is "$", to get
 		the last column of a specific line.  When "lnum" or "col" is
@@ -2627,7 +2633,6 @@ cursor({list})
 		If {col} is zero, the cursor will stay in the current column.
 		If {curswant} is given it is used to set the preferred column
 		for vertical movement.  Otherwise {col} is used.
-
 		When 'virtualedit' is used {off} specifies the offset in
 		screen columns from the start of the character.  E.g., a
 		position within a <Tab> or after the last character.
@@ -2807,7 +2812,7 @@ exists({expr})	The result is a Number, which is non-zero if {expr} is
 		For checking for a supported feature use |has()|.
 
 		Examples: >
-			exists("&shortname")
+			exists("&mouse")
 			exists("$HOSTNAME")
 			exists("*strftime")
 			exists("*s:MyFunc")
@@ -3309,17 +3314,6 @@ getchar([expr])						*getchar()*
 			:    endif
 			:  endwhile
 			:endfunction
-<
-		You may also receive syntetic characters, such as
-		|<CursorHold>|. Often you will want to ignore this and get
-		another character: >
-			:function GetKey()
-			:  let c = getchar()
-			:  while c == "\<CursorHold>"
-			:    let c = getchar()
-			:  endwhile
-			:  return c
-			:endfunction
 
 getcharmod()						*getcharmod()*
 		The result is a Number which is the state of the modifiers for
@@ -3530,7 +3524,7 @@ getpos({expr})	Get the position for {expr}.  For possible values of {expr}
 		This can be used to save and restore the position of a mark: >
 			let save_a_mark = getpos("'a")
 			...
-			call setpos("'a", save_a_mark)
+			call setpos(''a', save_a_mark
 <		Also see |getcurpos()| and |setpos()|.
 
 
@@ -4028,6 +4022,34 @@ items({dict})						*items()*
 		entry and the value of this entry.  The |List| is in arbitrary
 		order.
 
+jobsend({job}, {data})					{Nvim} *jobsend()*
+		Send data to {job} by writing it to the stdin of the process.
+		Returns 1 if the write succeeded, 0 otherwise.
+		See |job-control| for more information.
+
+		{data} may be a string, string convertible, or a list.  If
+		{data} is a list, the items will be separated by newlines and
+		any newlines in an item will be sent as a NUL.  For example: >
+			:call jobsend(j, ["abc", "123\n456"])
+< 		will send "abc<NL>123<NUL>456<NL>".
+
+jobstart({name}, {prog}[, {argv}])			{Nvim} *jobstart()*
+		Spawns {prog} as a job and associate it with the {name} string,
+		which will be used to match the "filename pattern" in
+		|JobActivity| events. It returns:
+		  - The job id on success, which is used by |jobsend()| and
+		    |jobstop()|
+		  - 0 when the job table is full or on invalid arguments
+		  - -1 when {prog} is not executable
+		See |job-control| for more information.
+
+jobstop({job})						{Nvim} *jobstop()*
+		Stop a job created with |jobstart()| by sending a `SIGTERM`
+		to the corresponding process. If the process doesn't exit
+		cleanly soon, a `SIGKILL` will be sent. When the job is
+		finally closed, a |JobActivity| event will trigger with
+		`v:job_data[0]` set to `exited`.  See |job-control| for more
+		information.
 
 join({list} [, {sep}])					*join()*
 		Join the items in {list} together into one String.
@@ -4867,7 +4889,7 @@ readfile({fname} [, {binary} [, {max}]])
 		separated with CR will result in a single long line (unless a
 		NL appears somewhere).
 		All NUL characters are replaced with a NL character.
-		When {binary/append} contains "b" binary mode is used:
+		When {binary} is equal to "b" binary mode is used:
 		- When the last line ends in a NL an extra empty list item is
 		  added.
 		- No CR characters are removed.
@@ -5068,6 +5090,33 @@ round({expr})							*round()*
 			echo round(-4.5)
 <			-5.0
 		{only available when compiled with the |+float| feature}
+
+rpcnotify({channel}, {event}[, {args}...])		  {Nvim} *rpcnotify()*
+		Sends {event} to {channel} via |msgpack-rpc| and returns
+		immediately. If {channel} is 0, the event is broadcast to all
+		channels. Example: >
+			:au VimLeave call rpcnotify(0, "leaving")
+
+rpcrequest({channel}, {method}[, {args}...])		 {Nvim} *rpcrequest()*
+		Sends a request to {channel} to invoke {method} via
+		|msgpack-rpc| and blocks until a response is received.
+		Example: >
+			:let result = rpcrequest(rpc_chan, "func", 1, 2, 3)
+
+rpcstart({prog}[, {argv}])				   {Nvim} *rpcstart()*
+		Spawns {prog} as a job (optionally passing the list {argv}),
+		and opens a |msgpack-rpc| channel with the spawned process's
+		stdin/stdout. It returns:
+		  - The channel id on success, which is used by |rpcrequest()|,
+		    |rpcnotify()| and |rpcstop()|
+		  - 0 on failure.
+		Example: >
+			:let rpc_chan = rpcstart('prog', ['arg1', 'arg2'])
+
+rpcstop({channel})					    {Nvim} *rpcstop()*
+		Closes a |msgpack-rpc| {channel}, possibly created via
+		|rpcstart()|. Also closes channels created by connections to
+		|$NVIM_LISTEN_ADDRESS|.
 
 screenattr(row, col)						*screenattr()*
 		Like screenchar(), but return the attribute.  This is a rather
@@ -5564,7 +5613,6 @@ setwinvar({nr}, {varname}, {val})			*setwinvar()*
 sha256({string})						*sha256()*
 		Returns a String with 64 hex charactes, which is the SHA256
 		checksum of {string}.
-		{only available when compiled with the |+cryptv| feature}
 
 shellescape({string} [, {special}])			*shellescape()*
 		Escape {string} for use as a shell command argument.
@@ -6112,12 +6160,6 @@ system({expr} [, {input}])				*system()* *E677*
 		list items converted to NULs).  
 		Pipes are not used.
 
-		When prepended by |:silent| the shell will not be set to
-		cooked mode.  This is meant to be used for commands that do
-		not need the user to type.  It avoids stray characters showing
-		up on the screen which require |CTRL-L| to remove. >
-			:silent let f = system('ls *.vim')
-<
 		Note: Use |shellescape()| or |::S| with |expand()| or 
 		|fnamemodify()| to escape special characters in a command 
 		argument.  Newlines in {expr} may cause the command to fail.  
@@ -6138,7 +6180,7 @@ system({expr} [, {input}])				*system()* *E677*
 		The command executed is constructed using several options:
 	'shell' 'shellcmdflag' 'shellxquote' {expr} 'shellredir' {tmp} 'shellxquote'
 		({tmp} is an automatically generated file name).
-		For Unix and OS/2 braces are put around {expr} to allow for
+		For Unix braces are put around {expr} to allow for
 		concatenated commands.
 
 		The command will be executed in "cooked" mode, so that a
@@ -6154,11 +6196,12 @@ system({expr} [, {input}])				*system()* *E677*
 		Use |:checktime| to force a check.
 
 
-systemlist({expr} [, {input}])				*systemlist()*
+systemlist({expr} [, {input} [, {keepempty}]])		*systemlist()*
 		Same as |system()|, but returns a |List| with lines (parts of 
 		output separated by NL) with NULs transformed into NLs. Output 
 		is the same as |readfile()| will output with {binary} argument 
-		set to "b".
+		set to "b", except that a final newline is not preserved,
+		unless {keepempty} is present and it's non-zero.
 
 		Returns an empty string on error, so be careful not to run 
 		into |E706|.
@@ -6244,8 +6287,7 @@ taglist({expr})							*taglist()*
 
 tempname()					*tempname()* *temp-file-name*
 		The result is a String, which is the name of a file that
-		doesn't exist.	It can be used for a temporary file.  The name
-		is different for at least 26 consecutive calls.  Example: >
+		doesn't exist.	It can be used for a temporary file.  Example: >
 			:let tmpfile = tempname()
 			:exe "redir > " . tmpfile
 <		For Unix, the file will be in a private directory |tempfile|.
@@ -6422,10 +6464,6 @@ virtcol({expr})						*virtcol()*
 			    plus one)
 		    'x	    position of mark x (if the mark is not set, 0 is
 			    returned)
-		    v       In Visual mode: the start of the Visual area (the
-			    cursor is the end).  When not in Visual mode
-			    returns the cursor position.  Differs from |'<| in
-			    that it's updated right away.
 		Note that only marks in the current file can be used.
 		Examples: >
   virtcol(".")	   with text "foo^Lbar", with cursor on the "^L", returns 5
@@ -6575,20 +6613,14 @@ winwidth({nr})						*winwidth()*
   :endif
 <
 							*writefile()*
-writefile({list}, {fname} [, {flags}])
+writefile({list}, {fname} [, {binary}])
 		Write |List| {list} to file {fname}.  Each list item is
 		separated with a NL.  Each list item must be a String or
 		Number.
-		When {flags} contains "b" then binary mode is used: There will
+		When {binary} is equal to "b" binary mode is used: There will
 		not be a NL after the last list item.  An empty item at the
 		end does cause the last line in the file to end in a NL.
-
-		When {flags} contains "a" then append mode is used, lines are
-		append to the file: >
-			:call writefile(["foo"], "event.log", "a")
-			:call writefile(["bar"], "event.log", "a")
->
-<		All NL characters are replaced with a NUL character.
+		All NL characters are replaced with a NUL character.
 		Inserting CR characters needs to be done before passing {list}
 		to writefile().
 		An existing file is overwritten, if possible.
@@ -6637,13 +6669,10 @@ There are four types of features:
 
 acl			Compiled with |ACL| support.
 all_builtin_terms	Compiled with all builtin terminals enabled.
-amiga			Amiga version of Vim.
 arabic			Compiled with Arabic support |Arabic|.
-arp			Compiled with ARP support (Amiga).
 autocmd			Compiled with autocommand support. |autocommand|
 balloon_eval		Compiled with |balloon-eval| support.
 balloon_multiline	GUI supports multiline balloons.
-beos			BeOS version of Vim.
 browse			Compiled with |:browse| support, and browse() will
 			work.
 browsefilter		Compiled with support for |browsefilter|.
@@ -6657,18 +6686,15 @@ cmdline_hist		Compiled with |cmdline-history| support.
 cmdline_info		Compiled with 'showcmd' and 'ruler' support.
 comments		Compiled with |'comments'| support.
 compatible		Compiled to be very Vi compatible.
-cryptv			Compiled with encryption support |encryption|.
 cscope			Compiled with |cscope| support.
 debug			Compiled with "DEBUG" defined.
 dialog_con		Compiled with console dialog support.
 dialog_gui		Compiled with GUI dialog support.
 diff			Compiled with |vimdiff| and 'diff' support.
 digraphs		Compiled with support for digraphs.
-directx			Compiled with support for Direct-X and 'renderoptions'.
 dnd			Compiled with support for the "~ register |quote_~|.
 dos16			16 bits DOS version of Vim.
 dos32			32 bits DOS (DJGPP) version of Vim.
-ebcdic			Compiled on a machine with ebcdic character set.
 emacs_tags		Compiled with support for Emacs tags.
 eval			Compiled with expression evaluation support.  Always
 			true, of course!
@@ -6682,8 +6708,8 @@ filterpipe		When 'shelltemp' is off pipes are used for shell
 find_in_path		Compiled with support for include file searches
 			|+find_in_path|.
 float			Compiled with support for |Float|.
-fname_case		Case in file names matters (for Amiga, MS-DOS, and
-			Windows this is not present).
+fname_case		Case in file names matters (for MS-DOS and Windows
+			this is not present).
 folding			Compiled with |folding| support.
 footer			Compiled with GUI footer support. |gui-footer|
 fork			Compiled to use fork()/exec() instead of system().
@@ -6695,11 +6721,9 @@ gui_gtk			Compiled with GTK+ GUI (any version).
 gui_gtk2		Compiled with GTK+ 2 GUI (gui_gtk is also defined).
 gui_mac			Compiled with Macintosh GUI.
 gui_motif		Compiled with Motif GUI.
-gui_photon		Compiled with Photon GUI.
 gui_running		Vim is running in the GUI, or it will start soon.
 gui_win32		Compiled with MS Windows Win32 GUI.
 gui_win32s		idem, and Win32s system being used (Windows 3.1)
-hangul_input		Compiled with Hangul input support. |hangul|
 iconv			Can use iconv() for conversion.
 insert_expand		Compiled with support for CTRL-X expansion commands in
 			Insert mode.
@@ -6723,7 +6747,6 @@ mouse			Compiled with support mouse.
 mouse_dec		Compiled with support for Dec terminal mouse.
 mouse_gpm		Compiled with support for gpm (Linux console mouse)
 mouse_netterm		Compiled with support for netterm mouse.
-mouse_pterm		Compiled with support for qnx pterm mouse.
 mouse_sysmouse		Compiled with support for sysmouse (*BSD console mouse)
 mouse_sgr		Compiled with support for sgr mouse.
 mouse_urxvt		Compiled with support for urxvt mouse.
@@ -6734,10 +6757,7 @@ multi_byte_encoding	'encoding' is set to a multi-byte encoding.
 multi_byte_ime		Compiled with support for IME input method.
 multi_lang		Compiled with support for multiple languages.
 mzscheme		Compiled with MzScheme interface |mzscheme|.
-netbeans_enabled	Compiled with support for |netbeans| and connected.
-netbeans_intg		Compiled with support for |netbeans|.
 ole			Compiled with OLE automation support for Win32.
-os2			OS/2 version of Vim.
 path_extra		Compiled with up/downwards search in 'path' and 'tags'
 perl			Compiled with Perl interface.
 persistent_undo		Compiled with support for persistent undo history.
@@ -6746,7 +6766,6 @@ printer			Compiled with |:hardcopy| support.
 profile			Compiled with |:profile| support.
 python			Compiled with Python 2.x interface. |has-python|
 python3			Compiled with Python 3.x interface. |has-python|
-qnx			QNX version of Vim.
 quickfix		Compiled with |quickfix| support.
 reltime			Compiled with |reltime()| support.
 rightleft		Compiled with 'rightleft' support.
@@ -6760,7 +6779,6 @@ spell			Compiled with spell checking support |spell|.
 startuptime		Compiled with |--startuptime| support.
 statusline		Compiled with support for 'statusline', 'rulerformat'
 			and special formats of 'titlestring' and 'iconstring'.
-sun_workshop		Compiled with support for Sun |workshop|.
 syntax			Compiled with syntax highlighting support |syntax|.
 syntax_items		There are active syntax highlighting items for the
 			current buffer.
@@ -6788,7 +6806,6 @@ virtualedit		Compiled with 'virtualedit' option.
 visual			Compiled with Visual mode.
 visualextra		Compiled with extra Visual mode commands.
 			|blockwise-operators|.
-vms			VMS version of Vim.
 vreplace		Compiled with |gR| and |gr| commands.
 wildignore		Compiled with 'wildignore' option.
 wildmenu		Compiled with 'wildmenu' option.
@@ -8918,4 +8935,4 @@ This is not allowed when the textlock is active:
 	- etc.
 
 
- vim:tw=78:ts=8:ft=help:norl:
+ vim:tw=78:ts=8:noet:ft=help:norl:

@@ -1927,7 +1927,6 @@ The 'fileformat' option sets the <EOL> style for a file:
   "dos"		<CR><NL> or <NL>   DOS format
   "unix"	<NL>		   Unix format
   "mac"		<CR>		   Mac format
-Previously 'textmode' was used.  It is obsolete now.
 
 If 'fileformat' is "dos", a <CR> in front of an <NL> is ignored and a CTRL-Z
 at the end of the file is ignored.
@@ -1941,9 +1940,9 @@ If the 'fileformats' option is not empty Vim tries to recognize the type of
 changed, the detected format is only used while reading the file.
 A similar thing happens with 'fileencodings'.
 
-On non-MS-DOS, Win32, and OS/2 systems the message "[dos format]" is shown if
+On non-MS-DOS and Win32 systems the message "[dos format]" is shown if
 a file is read in DOS format, to remind you that something unusual is done.
-On Macintosh, MS-DOS, Win32, and OS/2 the message "[unix format]" is shown if
+On Macintosh, MS-DOS, and Win32 the message "[unix format]" is shown if
 a file is read in Unix format.
 On non-Macintosh systems, the message "[Mac format]" is shown if a file is
 read in Mac format.
@@ -1975,7 +1974,6 @@ self explanatory.  Using the long or the short version depends on the
 					possible
 	[converted]			conversion from 'fileencoding' to
 					'encoding' done
-	[crypted]			file was decrypted
 	[READ ERRORS]			not all of the file could be read
 
 
