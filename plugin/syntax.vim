@@ -1,23 +1,51 @@
 let g:did_load_filetypes = 1
 let g:did_load_ftplugin  = 1
+let g:ftmap = {
+			\ 'asm': 'masm', 'inc': 'masm',
+			\ 's': 'gas', 'S': 'gas',
+			\ 'node': 'javascript', 'js': 'javascript',
+			\ 'md': 'markdown', 'mkd': 'markdown',
+			\ 'wiki': 'mediawiki',
+			\ 'pl': 'perl',
+			\ 'h': 'c',
+			\ }
 
 " Emulate default behaviour
 augroup FileTypeDetect
 	autocmd!
-	autocmd BufWritePost * if &l:filetype ==# '' | filetype detect | endif
-	runtime! ftdetect/*.vim
+	autocmd CmdwinEnter * setf vim
+	autocmd BufNewFile,BufRead * call s:setft(substitute(expand("<afile>"), '\v.*\.|\~', '', 'g'))
+	autocmd BufNewFile,BufRead,StdinReadPost * if getline(1) =~ '\v^(.+\(..?\)).*\1$' | setf man | endif
+	autocmd BufNewFile,BufRead,BufWritePost * call s:detect_shebang()
+	autocmd BufNewFile,BufRead Tupfile set filetype=tup
+	autocmd BufNewFile,BufRead Makefile set filetype=make
+	autocmd BufNewFile,BufRead ~/.config/fish/fish_{read_,}history setf yaml
+	autocmd BufNewFile,BufRead ~/.config/fish/fishd.* setlocal readonly
 augroup END
+
+function! s:filetype(name)
+	syntax clear
+	augroup FileTypePlugin
+		autocmd!
+		execute 'runtime syntax/'   . a:name . '.vim'
+		execute 'runtime indent/'   . a:name . '.vim'
+		execute 'runtime ftplugin/' . a:name . '.vim'
+		execute 'runtime ftplugin/after.vim'
+	augroup END
+endfunction
+
+function! s:detect_shebang()
+	let groups = matchlist(getline(1), '\v^#!\f+/(\f+)\s*(\f*)')
+	if len(groups)
+		call s:setft(groups[1] ==# 'env' ? groups[2] : groups[1])
+	endif
+endfunction
+
+function! s:setft(type)
+	let &l:filetype = get(g:ftmap, a:type, a:type)
+endfunction
 
 augroup UpdateFileType
 	autocmd!
-	autocmd FileType * syntax clear
-	autocmd FileType * augroup FileTypePlugin
-	autocmd FileType *     autocmd!
-	autocmd FileType *     for name in split(expand('<amatch>'), '\.')
-	autocmd FileType *         execute 'runtime syntax/'   . name . '.vim'
-	autocmd FileType *         execute 'runtime indent/'   . name . '.vim'
-	autocmd FileType *         execute 'runtime ftplugin/' . name . '.vim'
-	autocmd FileType *     endfor
-	autocmd FileType *     execute 'runtime ftplugin/after.vim'
-	autocmd FileType * augroup END
+	autocmd FileType * call s:filetype(expand('<amatch>'))
 augroup END
