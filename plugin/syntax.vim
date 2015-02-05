@@ -7,6 +7,7 @@ let g:ftmap = {
 			\ 'md': 'markdown', 'mkd': 'markdown',
 			\ 'wiki': 'mediawiki',
 			\ 'pl': 'perl',
+			\ 'py': 'python', 'python2': 'python', 'python3': 'python',
 			\ 'h': 'c',
 			\ }
 
