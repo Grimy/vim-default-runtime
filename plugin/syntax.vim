@@ -12,6 +12,7 @@ augroup UpdateFileType
 	autocmd!
 	autocmd FileType * syntax clear
 	autocmd FileType * augroup FileTypePlugin
+	autocmd FileType *     autocmd!
 	autocmd FileType *     for name in split(expand('<amatch>'), '\.')
 	autocmd FileType *         execute 'runtime syntax/'   . name . '.vim'
 	autocmd FileType *         execute 'runtime indent/'   . name . '.vim'
